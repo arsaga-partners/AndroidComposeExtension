@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -32,6 +33,7 @@ data class TabPagerState @ExperimentalPagerApi constructor(
 fun <T : Enum<*>> TabPager(
     tabItemList: Array<T>,
     isTabPositionBottom: Boolean = true,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     state: TabPagerState = TabPagerState.create(tabItemList),
     onClick: (Int) -> Unit = {
         state.coroutineScope.launch {
@@ -46,7 +48,8 @@ fun <T : Enum<*>> TabPager(
         {
             HorizontalPager(
                 state = state.pagerState,
-                Modifier
+                verticalAlignment = verticalAlignment,
+                modifier = Modifier
                     .fillMaxWidth()
                     .weight(1F)
             ) { page ->
