@@ -13,7 +13,7 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-data class TabPagerState<T> @ExperimentalPagerApi internal constructor(
+data class TabPagerState<T> @ExperimentalPagerApi constructor(
     val tabItemList: List<T>,
     val coroutineScope: CoroutineScope,
     val pagerState: PagerState
