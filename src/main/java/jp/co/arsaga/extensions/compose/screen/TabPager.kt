@@ -94,6 +94,7 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
             {
                 HorizontalPager(
                     state = pagerConfig.tabConfig.state.pagerState,
+                    dragEnabled = pagerConfig.dragEnabled,
                     verticalAlignment = pagerConfig.verticalAlignment,
                     modifier = Modifier
                         .fillMaxWidth()
