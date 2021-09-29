@@ -13,17 +13,98 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-data class TabPagerState @ExperimentalPagerApi constructor(
+data class TabPagerState<T> @ExperimentalPagerApi internal constructor(
+    val tabItemList: List<T>,
     val coroutineScope: CoroutineScope,
     val pagerState: PagerState
 ) {
     companion object {
         @OptIn(ExperimentalPagerApi::class)
         @Composable
-        fun create(tabItemList: Array<*>) = TabPagerState(
+        fun <T> factory(tabItemList: List<T>) = TabPagerState(
+            tabItemList,
             rememberCoroutineScope(),
             rememberPagerState(pageCount = tabItemList.size)
         )
+    }
+}
+
+data class TabConfig<T> @ExperimentalPagerApi internal constructor(
+    val state: TabPagerState<T>,
+    val isTabPositionBottom: Boolean = true,
+    val onClick: (Int) -> Unit = {
+        state.coroutineScope.launch {
+            state.pagerState.scrollToPage(it)
+        }
+    },
+    val tabFactory: @Composable () -> Unit = {},
+    val tabRowLayout: @Composable ColumnScope.(currentPage: Int, tabFactory: @Composable () -> Unit) -> Unit,
+    val tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit
+) {
+    companion object {
+        @ExperimentalPagerApi
+        fun <T> factory(
+            tabPagerState: TabPagerState<T>,
+            tabRowLayout: @Composable ColumnScope.(currentPage: Int, tabFactory: @Composable () -> Unit) -> Unit,
+            tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit,
+            process: (TabConfig<T>) -> TabConfig<T> = { it }
+        ) = process(
+            TabConfig(
+                tabPagerState,
+                tabRowLayout = tabRowLayout,
+                tabItemLayout = tabItemLayout
+            )
+        ).run { copy(tabFactory = defaultTabFactory(this)) }
+
+        @OptIn(ExperimentalPagerApi::class)
+        private fun <T> defaultTabFactory(tabConfig: TabConfig<T>): @Composable () -> Unit = {
+            Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+                tabConfig.state.tabItemList.forEachIndexed { index, tabPagerType ->
+                    val isSelected = tabConfig.state.pagerState.currentPage == index
+                    Tab(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1F),
+                        selected = isSelected,
+                        onClick = { tabConfig.onClick(index) },
+                    ) {
+                        tabConfig.tabItemLayout(this, isSelected, tabPagerType)
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal constructor(
+    val tabConfig: TabConfig<T>,
+    val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    val dragEnabled: Boolean = true,
+    val pager: @Composable ColumnScope.() -> Unit = {},
+    val contents: (Int) -> @Composable () -> Unit
+) {
+    companion object {
+        @ExperimentalPagerApi
+        fun <T> factory(
+            tabConfig: TabConfig<T>,
+            contents: (Int) -> @Composable () -> Unit,
+            process: (PagerConfig<T>) -> PagerConfig<T> = { it }
+        ) = process(PagerConfig(tabConfig, contents = contents))
+            .run { copy(pager = defaultPager(this)) }
+
+        @OptIn(ExperimentalPagerApi::class)
+        private fun <T> defaultPager(pagerConfig: PagerConfig<T>): @Composable ColumnScope.() -> Unit =
+            {
+                HorizontalPager(
+                    state = pagerConfig.tabConfig.state.pagerState,
+                    verticalAlignment = pagerConfig.verticalAlignment,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F)
+                ) { page ->
+                    pagerConfig.contents(page).invoke()
+                }
+            }
     }
 }
 
@@ -31,56 +112,23 @@ data class TabPagerState @ExperimentalPagerApi constructor(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun <T : Enum<*>> TabPager(
-    tabItemList: Array<T>,
-    isTabPositionBottom: Boolean = true,
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    state: TabPagerState = TabPagerState.create(tabItemList),
-    onClick: (Int) -> Unit = {
-        state.coroutineScope.launch {
-            state.pagerState.scrollToPage(it)
-        }
-    },
-    contents: (Int) -> @Composable () -> Unit,
-    tabRowLayout: @Composable (currentPage: Int, tabItemLayout: @Composable () -> Unit) -> Unit,
-    tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit
+    argument: Triple<TabPagerState<T>, TabConfig<T>, PagerConfig<T>>
 ) {
-    val layoutPart = listOf<@Composable ColumnScope.() -> Unit>(
-        {
-            HorizontalPager(
-                state = state.pagerState,
-                verticalAlignment = verticalAlignment,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1F)
-            ) { page ->
-                contents(page).invoke()
-            }
-        }, {
-            tabRowLayout(state.pagerState.currentPage) {
-                Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                    tabItemList.forEachIndexed { index, tabPagerType ->
-                        val isSelected = state.pagerState.currentPage == index
-                        Tab(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .weight(1F),
-                            selected = isSelected,
-                            onClick = { onClick(index) },
-                        ) {
-                            tabItemLayout(this, isSelected, tabPagerType)
-                        }
-                    }
-                }
-            }
-        }
-    )
     Column {
-        if (isTabPositionBottom) {
-            layoutPart[0]()
-            layoutPart[1]()
+        if (argument.second.isTabPositionBottom) {
+            argument.third.pager(this)
+            argument.second.tabRowLayout(
+                this,
+                argument.first.pagerState.currentPage,
+                argument.second.tabFactory
+            )
         } else {
-            layoutPart[1]()
-            layoutPart[0]()
+            argument.second.tabRowLayout(
+                this,
+                argument.first.pagerState.currentPage,
+                argument.second.tabFactory
+            )
+            argument.third.pager(this)
         }
     }
 }
