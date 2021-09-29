@@ -45,6 +45,7 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
         @ExperimentalPagerApi
         fun <T> factory(
             tabPagerState: TabPagerState<T>,
+            tabFactory: ((TabConfig<T>) -> @Composable () -> Unit)? = null,
             tabRowLayout: @Composable ColumnScope.(currentPage: Int, tabFactory: @Composable () -> Unit) -> Unit,
             tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit,
             process: (TabConfig<T>) -> TabConfig<T> = { it }
@@ -54,7 +55,7 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
                 tabRowLayout = tabRowLayout,
                 tabItemLayout = tabItemLayout
             )
-        ).run { copy(tabFactory = defaultTabFactory(this)) }
+        ).run { copy(tabFactory = tabFactory?.invoke(this) ?: defaultTabFactory(this)) }
 
         @OptIn(ExperimentalPagerApi::class)
         private fun <T> defaultTabFactory(tabConfig: TabConfig<T>): @Composable () -> Unit = {
@@ -87,10 +88,11 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
         @ExperimentalPagerApi
         fun <T> factory(
             tabConfig: TabConfig<T>,
+            pager: ((PagerConfig<T>) -> @Composable (ColumnScope.() -> Unit))? = null,
             contents: (Int) -> @Composable () -> Unit,
             process: (PagerConfig<T>) -> PagerConfig<T> = { it }
         ) = process(PagerConfig(tabConfig, contents = contents))
-            .run { copy(pager = defaultPager(this)) }
+            .run { copy(pager = pager?.invoke(this) ?: defaultPager(this)) }
 
         @OptIn(ExperimentalPagerApi::class)
         private fun <T> defaultPager(pagerConfig: PagerConfig<T>): @Composable ColumnScope.() -> Unit =
