@@ -59,18 +59,13 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
 
         @OptIn(ExperimentalPagerApi::class)
         private fun <T> defaultTabFactory(tabConfig: TabConfig<T>): @Composable () -> Unit = {
-            Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                tabConfig.state.tabItemList.forEachIndexed { index, tabPagerType ->
-                    val isSelected = tabConfig.state.pagerState.currentPage == index
-                    Tab(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1F),
-                        selected = isSelected,
-                        onClick = { tabConfig.onClick(index) },
-                    ) {
-                        tabConfig.tabItemLayout(this, isSelected, tabPagerType)
-                    }
+            tabConfig.state.tabItemList.forEachIndexed { index, tabPagerType ->
+                val isSelected = tabConfig.state.pagerState.currentPage == index
+                Tab(
+                    selected = isSelected,
+                    onClick = { tabConfig.onClick(index) },
+                ) {
+                    tabConfig.tabItemLayout(this, isSelected, tabPagerType)
                 }
             }
         }
