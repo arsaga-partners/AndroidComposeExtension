@@ -14,6 +14,7 @@ fun InfiniteListHandler(
     buffer: Int,
     onLoadMore: () -> Unit
 ) {
+    if (listState.layoutInfo.totalItemsCount == 0) return
     val loadMore = remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
