@@ -109,7 +109,7 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
 @ExperimentalMaterialApi
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun <T : Enum<*>> TabPager(
+fun <T> TabPager(
     argument: Triple<TabPagerState<T>, TabConfig<T>, PagerConfig<T>>
 ) {
     Column {
