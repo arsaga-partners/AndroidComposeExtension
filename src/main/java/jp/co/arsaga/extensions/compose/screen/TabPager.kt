@@ -24,7 +24,7 @@ data class TabPagerState<T> @ExperimentalPagerApi constructor(
         fun <T> factory(tabItemList: List<T>) = TabPagerState(
             tabItemList,
             rememberCoroutineScope(),
-            rememberPagerState(pageCount = tabItemList.size)
+            rememberPagerState()
         )
     }
 }
@@ -93,8 +93,9 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
         private fun <T> defaultPager(pagerConfig: PagerConfig<T>): @Composable ColumnScope.() -> Unit =
             {
                 HorizontalPager(
+                    count = pagerConfig.tabConfig.state.tabItemList.count(),
                     state = pagerConfig.tabConfig.state.pagerState,
-                    dragEnabled = pagerConfig.dragEnabled,
+                    reverseLayout = pagerConfig.dragEnabled,
                     verticalAlignment = pagerConfig.verticalAlignment,
                     modifier = Modifier
                         .fillMaxWidth()
