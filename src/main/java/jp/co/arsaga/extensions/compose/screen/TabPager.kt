@@ -1,11 +1,13 @@
 package jp.co.arsaga.extensions.compose.screen
 
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -95,13 +97,19 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
                 HorizontalPager(
                     count = pagerConfig.tabConfig.state.tabItemList.count(),
                     state = pagerConfig.tabConfig.state.pagerState,
-                    reverseLayout = pagerConfig.dragEnabled,
                     verticalAlignment = pagerConfig.verticalAlignment,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1F)
                 ) { page ->
-                    pagerConfig.contents(page).invoke()
+                    if (pagerConfig.dragEnabled)
+                        pagerConfig.contents(page).invoke()
+                    else
+                        Box(modifier = Modifier.pointerInput(Unit) {
+                            detectDragGestures { _, _ -> }
+                        }) {
+                            pagerConfig.contents(page).invoke()
+                        }
                 }
             }
     }
