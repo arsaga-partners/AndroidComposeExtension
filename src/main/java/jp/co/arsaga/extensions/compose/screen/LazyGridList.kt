@@ -18,6 +18,7 @@ inline fun <T> LazyListScope.gridItems(
 ) = gridItems(items, columnCount, rowModifier) { item, _, _ ->
     itemLayout(item)
 }
+@Deprecated("公式がexperimentalじゃなくなったら削除")
 inline fun <T> LazyListScope.gridItems(
     items: List<T>,
     columnCount: Int,
