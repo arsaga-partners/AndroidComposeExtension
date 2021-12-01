@@ -14,23 +14,23 @@ inline fun <T> LazyListScope.gridItems(
     items: List<T>,
     columnCount: Int,
     crossinline rowModifier: (Int) -> Modifier = { Modifier },
-    crossinline itemLayout: @Composable RowScope.(item: T, columnPosition: Int) -> Unit
+    crossinline itemLayout: @Composable RowScope.(Triple<T, Int, Int>) -> Unit
 ) {
     val rowCount = ceil(items.size / columnCount.toDouble()).toInt()
     return items(
         count = rowCount,
         key = { index: Int -> index }
-    ) {
-        val groupedFirstPosition = it * columnCount
+    ) { rowPosition ->
+        val groupedFirstPosition = rowPosition * columnCount
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(rowModifier(it))
+                .then(rowModifier(rowPosition))
         ) {
             repeat(columnCount) { columnPosition ->
                 val position = groupedFirstPosition + columnPosition
                 items.getOrNull(position)?.let {
-                    itemLayout(it, columnPosition)
+                    itemLayout(Triple(it, rowPosition, columnPosition))
                 } ?: run {
                     Spacer(modifier = Modifier.weight(1F))
                 }
