@@ -21,13 +21,14 @@ inline fun <T> LazyListScope.gridItems(
         count = rowCount,
         key = { index: Int -> index }
     ) {
+        val groupedFirstPosition = it * columnCount
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(rowModifier)
         ) {
             repeat(columnCount) { columnPosition ->
-                val position = it * columnCount + columnPosition
+                val position = groupedFirstPosition + columnPosition
                 items.getOrNull(position)?.let {
                     itemLayout(it, columnPosition)
                 } ?: run {
