@@ -13,7 +13,7 @@ import kotlin.math.ceil
 inline fun <T> LazyListScope.gridItems(
     items: List<T>,
     columnCount: Int,
-    rowModifier: Modifier = Modifier,
+    crossinline rowModifier: (Int) -> Modifier = { Modifier },
     crossinline itemLayout: @Composable RowScope.(item: T, columnPosition: Int) -> Unit
 ) {
     val rowCount = ceil(items.size / columnCount.toDouble()).toInt()
@@ -25,7 +25,7 @@ inline fun <T> LazyListScope.gridItems(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(rowModifier)
+                .then(rowModifier(it))
         ) {
             repeat(columnCount) { columnPosition ->
                 val position = groupedFirstPosition + columnPosition
