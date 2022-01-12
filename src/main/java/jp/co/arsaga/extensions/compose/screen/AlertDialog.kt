@@ -107,7 +107,7 @@ fun <T> SimpleAlertDialog(
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(end = 12.dp, bottom = 12.dp)
+                        .padding(bottom = 12.dp)
                         .clickable(onClick = onNegative)
                         .padding(12.dp)
                 )
