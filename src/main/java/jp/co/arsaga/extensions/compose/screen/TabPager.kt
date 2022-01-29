@@ -1,8 +1,12 @@
 package jp.co.arsaga.extensions.compose.screen
 
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -77,7 +81,7 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
 data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal constructor(
     val tabConfig: TabConfig<T>,
     val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    val dragEnabled: Boolean = true,
+    val dragEnabled: Boolean,
     val pager: @Composable ColumnScope.() -> Unit = {},
     val contents: (Int) -> @Composable () -> Unit
 ) {
@@ -86,9 +90,10 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
         fun <T> factory(
             tabConfig: TabConfig<T>,
             pager: ((PagerConfig<T>) -> @Composable (ColumnScope.() -> Unit))? = null,
+            dragEnabled: Boolean = true,
             contents: (Int) -> @Composable () -> Unit,
             process: (PagerConfig<T>) -> PagerConfig<T> = { it }
-        ) = process(PagerConfig(tabConfig, contents = contents))
+        ) = process(PagerConfig(tabConfig, dragEnabled = dragEnabled, contents = contents))
             .run { copy(pager = pager?.invoke(this) ?: defaultPager(this)) }
 
         @OptIn(ExperimentalPagerApi::class)
