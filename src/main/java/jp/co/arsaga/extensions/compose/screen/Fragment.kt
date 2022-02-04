@@ -3,6 +3,7 @@ package jp.co.arsaga.extensions.compose.screen
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,7 +28,7 @@ fun Fragment.composable(
 
 @Composable
 fun SystemPaddingLayout(
-    content: @Composable () -> Unit
+    content: @Composable BoxScope.() -> Unit
 ) {
     ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
         Box(
@@ -37,7 +38,7 @@ fun SystemPaddingLayout(
                 .statusBarsPadding()
                 .navigationBarsWithImePadding()
         ) {
-            content()
+            content(this)
         }
     }
 }
