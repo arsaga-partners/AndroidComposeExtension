@@ -16,9 +16,9 @@ import com.google.accompanist.pager.rememberPagerState
 @Composable
 fun <T> Carousel(
     entityList: List<T>,
+    indicatorWidget: @Composable RowScope.(currentPage: Int) -> Unit,
     modifier: Modifier = Modifier,
     indicatorSpace: Dp = 0.dp,
-    indicatorWidget: @Composable RowScope.(currentPage: Int) -> Unit,
     pagerState: PagerState = rememberPagerState(),
     imageWidget: @Composable (Int) -> Unit
 ) {
