@@ -20,7 +20,28 @@ fun <T> Carousel(
     modifier: Modifier = Modifier,
     indicatorSpace: Dp = 0.dp,
     pagerState: PagerState = rememberPagerState(),
-    imageWidget: @Composable (Int) -> Unit
+    imageWidget: @Composable (T) -> Unit
+) {
+    Carousel(
+        entityList,
+        indicatorWidget,
+        modifier,
+        indicatorSpace,
+        pagerState
+    ) { _, entity ->
+        imageWidget(entity)
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun <T> Carousel(
+    entityList: List<T>,
+    indicatorWidget: @Composable RowScope.(currentPage: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    indicatorSpace: Dp = 0.dp,
+    pagerState: PagerState = rememberPagerState(),
+    imageWidget: @Composable (Int, T) -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -33,7 +54,9 @@ fun <T> Carousel(
                 .fillMaxWidth()
                 .then(modifier),
         ) { page ->
-            imageWidget(page)
+            entityList.getOrNull(page)?.let {
+                imageWidget(page, it)
+            }
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(indicatorSpace)
