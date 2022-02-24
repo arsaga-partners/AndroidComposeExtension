@@ -22,6 +22,7 @@ fun <T> SimpleAlertDialogBuilder(
     confirmButtonText: @Composable (T) -> String,
     cancelButtonText: @Composable (T) -> String? = { null },
     onNegative: (MutableState<T?>) -> Unit = { it.value = null },
+    onDismiss: (MutableState<T?>) -> Unit = { it.value = null },
     onPositive: (MutableState<T?>) -> Unit
 ): MutableState<T?> = remember { mutableStateOf<T?>(null) }.also { dialogState ->
     dialogState.value?.let {
@@ -31,7 +32,7 @@ fun <T> SimpleAlertDialogBuilder(
             text = text,
             confirmButtonText = confirmButtonText,
             cancelButtonText = cancelButtonText,
-            onDismiss = { dialogState.value = null },
+            onDismiss = { onDismiss(dialogState) },
             onNegative = { onNegative(dialogState) },
             onPositive = { onPositive(dialogState) }
         )
