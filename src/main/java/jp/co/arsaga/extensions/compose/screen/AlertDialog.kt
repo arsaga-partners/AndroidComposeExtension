@@ -4,10 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +18,7 @@ fun <T> SimpleAlertDialogBuilder(
     text: @Composable (T) -> String? = { null },
     confirmButtonText: @Composable (T) -> String,
     cancelButtonText: @Composable (T) -> String? = { null },
+    onShow: (Pair<Any, suspend () -> Unit>)? = null,
     onNegative: (MutableState<T?>) -> Unit = { it.value = null },
     onDismiss: (MutableState<T?>) -> Unit = { it.value = null },
     onPositive: (MutableState<T?>) -> Unit
@@ -32,6 +30,7 @@ fun <T> SimpleAlertDialogBuilder(
             text = text,
             confirmButtonText = confirmButtonText,
             cancelButtonText = cancelButtonText,
+            onShow = onShow,
             onDismiss = { onDismiss(dialogState) },
             onNegative = { onNegative(dialogState) },
             onPositive = { onPositive(dialogState) }
@@ -45,6 +44,7 @@ fun SimpleAlertDialogBuilder(
     text: String? = null,
     confirmButtonText: String,
     cancelButtonText: String? = null,
+    onShow: (Pair<Any, suspend () -> Unit>)? = null,
     onNegative: (MutableState<Boolean>) -> Unit = { it.value = false },
     onPositive: (MutableState<Boolean>) -> Unit
 ): MutableState<Boolean> = remember { mutableStateOf(false) }.also { dialogState ->
@@ -54,6 +54,7 @@ fun SimpleAlertDialogBuilder(
         text = { text },
         confirmButtonText = { confirmButtonText },
         cancelButtonText = { cancelButtonText },
+        onShow = onShow,
         onDismiss = { dialogState.value = false },
         onNegative = { onNegative(dialogState) },
         onPositive = { onPositive(dialogState) }
@@ -67,6 +68,7 @@ fun <T> SimpleAlertDialog(
     text: @Composable (T) -> String? = { null },
     confirmButtonText: @Composable (T) -> String,
     cancelButtonText: @Composable (T) -> String? = { null },
+    onShow: (Pair<Any, suspend () -> Unit>)? = null,
     onDismiss: () -> Unit,
     onNegative: () -> Unit,
     titleWidget: @Composable (T) -> Unit = { Text(text = title(value), fontSize = 16.sp) },
@@ -82,6 +84,11 @@ fun <T> SimpleAlertDialog(
     },
     onPositive: () -> Unit
 ) {
+    onShow?.let {
+        LaunchedEffect(it.first) {
+            it.second()
+        }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { titleWidget(value) },
