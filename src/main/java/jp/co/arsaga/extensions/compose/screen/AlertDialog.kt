@@ -46,6 +46,7 @@ fun SimpleAlertDialogBuilder(
     cancelButtonText: String? = null,
     onShow: (Pair<Any, suspend () -> Unit>)? = null,
     onNegative: (MutableState<Boolean>) -> Unit = { it.value = false },
+    onDismiss: (MutableState<Boolean>) -> Unit = { it.value = false },
     onPositive: (MutableState<Boolean>) -> Unit
 ): MutableState<Boolean> = remember { mutableStateOf(false) }.also { dialogState ->
     if (dialogState.value) SimpleAlertDialog(
@@ -55,7 +56,7 @@ fun SimpleAlertDialogBuilder(
         confirmButtonText = { confirmButtonText },
         cancelButtonText = { cancelButtonText },
         onShow = onShow,
-        onDismiss = { dialogState.value = false },
+        onDismiss = { onDismiss(dialogState) },
         onNegative = { onNegative(dialogState) },
         onPositive = { onPositive(dialogState) }
     )
