@@ -71,7 +71,7 @@ fun <T> SimpleAlertDialog(
     cancelButtonText: @Composable (T) -> String? = { null },
     onShow: (Pair<Any, suspend () -> Unit>)? = null,
     onDismiss: () -> Unit,
-    onNegative: () -> Unit,
+    onNegative: () -> Unit = {},
     titleWidget: @Composable (T) -> Unit = { Text(text = title(value), fontSize = 16.sp) },
     textWidget: (@Composable (T) -> (@Composable () -> Unit)?)? = {
         text(value)?.let {
