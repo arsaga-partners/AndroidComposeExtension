@@ -83,7 +83,7 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
     val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     val dragEnabled: Boolean,
     val pager: @Composable ColumnScope.() -> Unit = {},
-    val contents: (Int) -> @Composable () -> Unit
+    val contents: @Composable (Int) -> @Composable () -> Unit
 ) {
     companion object {
         @ExperimentalPagerApi
@@ -91,7 +91,7 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
             tabConfig: TabConfig<T>,
             pager: ((PagerConfig<T>) -> @Composable (ColumnScope.() -> Unit))? = null,
             dragEnabled: Boolean = true,
-            contents: (Int) -> @Composable () -> Unit,
+            contents: @Composable (Int) -> @Composable () -> Unit,
             process: (PagerConfig<T>) -> PagerConfig<T> = { it }
         ) = process(PagerConfig(tabConfig, dragEnabled = dragEnabled, contents = contents))
             .run { copy(pager = pager?.invoke(this) ?: defaultPager(this)) }
