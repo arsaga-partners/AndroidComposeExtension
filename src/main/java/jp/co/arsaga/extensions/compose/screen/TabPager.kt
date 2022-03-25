@@ -19,7 +19,10 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-data class TabPagerState<T> @ExperimentalPagerApi constructor(
+@OptIn(
+    ExperimentalPagerApi::class,
+)
+data class TabPagerState<T> constructor(
     val tabItemList: List<T>,
     val coroutineScope: CoroutineScope,
     val pagerState: PagerState
@@ -35,7 +38,10 @@ data class TabPagerState<T> @ExperimentalPagerApi constructor(
     }
 }
 
-data class TabConfig<T> @ExperimentalPagerApi internal constructor(
+@OptIn(
+    ExperimentalPagerApi::class
+)
+data class TabConfig<T> internal constructor(
     val state: TabPagerState<T>,
     val isTabPositionBottom: Boolean = true,
     val onClick: (Int) -> Unit = {
@@ -48,7 +54,7 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
     val tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit
 ) {
     companion object {
-        @ExperimentalPagerApi
+        @OptIn(ExperimentalPagerApi::class)
         fun <T> factory(
             tabPagerState: TabPagerState<T>,
             tabFactory: ((TabConfig<T>) -> @Composable () -> Unit)? = null,
@@ -86,7 +92,7 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
     val contents: @Composable (Int) -> @Composable () -> Unit
 ) {
     companion object {
-        @ExperimentalPagerApi
+        @OptIn(ExperimentalPagerApi::class)
         fun <T> factory(
             tabConfig: TabConfig<T>,
             pager: ((PagerConfig<T>) -> @Composable (ColumnScope.() -> Unit))? = null,
@@ -120,8 +126,10 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
     }
 }
 
-@ExperimentalMaterialApi
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class,
+)
 @Composable
 fun <T> TabPager(
     argument: Triple<TabPagerState<T>, TabConfig<T>, PagerConfig<T>>
