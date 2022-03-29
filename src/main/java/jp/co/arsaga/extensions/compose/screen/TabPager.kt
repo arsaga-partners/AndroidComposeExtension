@@ -1,8 +1,12 @@
 package jp.co.arsaga.extensions.compose.screen
 
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -15,7 +19,10 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-data class TabPagerState<T> @ExperimentalPagerApi constructor(
+@OptIn(
+    ExperimentalPagerApi::class,
+)
+data class TabPagerState<T> constructor(
     val tabItemList: List<T>,
     val coroutineScope: CoroutineScope,
     val pagerState: PagerState
@@ -31,7 +38,10 @@ data class TabPagerState<T> @ExperimentalPagerApi constructor(
     }
 }
 
-data class TabConfig<T> @ExperimentalPagerApi internal constructor(
+@OptIn(
+    ExperimentalPagerApi::class
+)
+data class TabConfig<T> internal constructor(
     val state: TabPagerState<T>,
     val isTabPositionBottom: Boolean = true,
     val onClick: (Int) -> Unit = {
@@ -44,7 +54,7 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
     val tabItemLayout: @Composable ColumnScope.(isSelected: Boolean, tabEntity: T) -> Unit
 ) {
     companion object {
-        @ExperimentalPagerApi
+        @OptIn(ExperimentalPagerApi::class)
         fun <T> factory(
             tabPagerState: TabPagerState<T>,
             tabFactory: ((TabConfig<T>) -> @Composable () -> Unit)? = null,
@@ -77,18 +87,19 @@ data class TabConfig<T> @ExperimentalPagerApi internal constructor(
 data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal constructor(
     val tabConfig: TabConfig<T>,
     val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    val dragEnabled: Boolean = true,
+    val dragEnabled: Boolean,
     val pager: @Composable ColumnScope.() -> Unit = {},
-    val contents: (Int) -> @Composable () -> Unit
+    val contents: @Composable (Int) -> @Composable () -> Unit
 ) {
     companion object {
-        @ExperimentalPagerApi
+        @OptIn(ExperimentalPagerApi::class)
         fun <T> factory(
             tabConfig: TabConfig<T>,
             pager: ((PagerConfig<T>) -> @Composable (ColumnScope.() -> Unit))? = null,
-            contents: (Int) -> @Composable () -> Unit,
+            dragEnabled: Boolean = true,
+            contents: @Composable (Int) -> @Composable () -> Unit,
             process: (PagerConfig<T>) -> PagerConfig<T> = { it }
-        ) = process(PagerConfig(tabConfig, contents = contents))
+        ) = process(PagerConfig(tabConfig, dragEnabled = dragEnabled, contents = contents))
             .run { copy(pager = pager?.invoke(this) ?: defaultPager(this)) }
 
         @OptIn(ExperimentalPagerApi::class)
@@ -115,8 +126,10 @@ data class PagerConfig<T> @OptIn(ExperimentalPagerApi::class) internal construct
     }
 }
 
-@ExperimentalMaterialApi
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class,
+)
 @Composable
 fun <T> TabPager(
     argument: Triple<TabPagerState<T>, TabConfig<T>, PagerConfig<T>>
