@@ -2,9 +2,7 @@ package jp.co.arsaga.extensions.compose.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VisibilityThreshold
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.*
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
@@ -22,16 +20,48 @@ fun AnimateVerticalToggleLayout(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    AnimateVerticalToggleLayoutImpl(dampingRatio) { animationSpec ->
+        AnimatedVisibility(
+            visible = isVisible,
+            modifier = modifier,
+            enter = expandVertically(expandFrom = direction, animationSpec = animationSpec),
+            exit = shrinkVertically(shrinkTowards = direction, animationSpec = animationSpec)
+        ) {
+            content()
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimateVerticalToggleLayout(
+    isVisibleState: MutableTransitionState<Boolean>,
+    direction: Alignment.Vertical,
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    AnimateVerticalToggleLayoutImpl(dampingRatio) { animationSpec ->
+        AnimatedVisibility(
+            visibleState = isVisibleState,
+            modifier = modifier,
+            enter = expandVertically(expandFrom = direction, animationSpec = animationSpec),
+            exit = shrinkVertically(shrinkTowards = direction, animationSpec = animationSpec)
+        ) {
+            content()
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AnimateVerticalToggleLayoutImpl(
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    content: @Composable (SpringSpec<IntSize>) -> Unit
+) {
     val animationSpec = spring(
         dampingRatio = dampingRatio,
         visibilityThreshold = IntSize.VisibilityThreshold
     )
-    AnimatedVisibility(
-        visible = isVisible,
-        modifier = modifier,
-        enter = expandVertically(expandFrom = direction, animationSpec = animationSpec),
-        exit = shrinkVertically(shrinkTowards = direction, animationSpec = animationSpec)
-    ) {
-        content()
-    }
+    content(animationSpec)
 }
