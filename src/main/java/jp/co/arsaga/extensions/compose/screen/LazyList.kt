@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.filter
 fun InfiniteListHandler(
     listState: LazyListState,
     buffer: Int,
-    onLoadMore: () -> Unit
+    onLoadMore: suspend () -> Unit
 ) {
     if (listState.layoutInfo.totalItemsCount == 0) return
     val loadMore = remember {
