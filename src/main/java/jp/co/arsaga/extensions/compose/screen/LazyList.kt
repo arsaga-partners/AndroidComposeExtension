@@ -1,8 +1,10 @@
 package jp.co.arsaga.extensions.compose.screen
 
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -33,4 +35,17 @@ fun InfiniteListHandler(
                 onLoadMore()
             }
     }
+}
+
+tailrec suspend fun autoScroll(
+    lazyListState: LazyListState,
+    scrollPixelUnit: Float,
+    delayTimeUnit: Long,
+    isNeedScroll: State<Boolean> = mutableStateOf(true)
+) {
+    if (isNeedScroll.value) lazyListState.scroll(MutatePriority.UserInput) {
+        scrollBy(scrollPixelUnit)
+    }
+    delay(delayTimeUnit)
+    autoScroll(lazyListState, scrollPixelUnit, delayTimeUnit)
 }
