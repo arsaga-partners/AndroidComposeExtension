@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
@@ -37,15 +36,26 @@ fun InfiniteListHandler(
     }
 }
 
-tailrec suspend fun autoScroll(
+suspend fun autoScroll(
+    lazyListState: LazyListState,
+    totalScrollPixel: Float,
+    totalDuration: Long,
+    roughness: Long = 1L,
+    isNeedScroll: () -> Boolean = { true }
+) {
+    val scrollSpeedUnit = totalScrollPixel / totalDuration * roughness
+    autoScrollPrimitive(lazyListState, scrollSpeedUnit, roughness, isNeedScroll)
+}
+
+tailrec suspend fun autoScrollPrimitive(
     lazyListState: LazyListState,
     scrollPixelUnit: Float,
     delayTimeUnit: Long,
-    isNeedScroll: State<Boolean> = mutableStateOf(true)
+    isNeedScroll: () -> Boolean = { true }
 ) {
-    if (isNeedScroll.value) lazyListState.scroll(MutatePriority.UserInput) {
+    if (isNeedScroll()) lazyListState.scroll(MutatePriority.UserInput) {
         scrollBy(scrollPixelUnit)
     }
     delay(delayTimeUnit)
-    autoScroll(lazyListState, scrollPixelUnit, delayTimeUnit)
+    autoScrollPrimitive(lazyListState, scrollPixelUnit, delayTimeUnit)
 }
